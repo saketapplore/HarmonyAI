@@ -485,8 +485,6 @@ export default function Layout({ children }: LayoutProps) {
           <header className="bg-white border-b py-4 px-6">
             <h1 className="text-xl font-semibold text-gray-800">
               {location === "/" && "Feed"}
-              {location === "/my-network" && "My Network"}
-              {location === "/recruiter-network" && "My Network"}
               {location === "/recruiter-jobs" && "Jobs"}
               {location === "/applicant-tracking" && "Applicant Tracking"}
               {location === "/create-job-posting" && "Post a Job"}

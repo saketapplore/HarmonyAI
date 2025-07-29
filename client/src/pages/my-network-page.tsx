@@ -230,10 +230,6 @@ export default function MyNetworkPage() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Network</h1>
-              <p className="text-gray-600 mt-1">Connect and grow your professional network</p>
-            </div>
           </div>
         
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
