@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import { 
   Search, 
   Briefcase, 
@@ -45,6 +46,7 @@ interface Job {
 export default function JobPageNew() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   
   // UI state
   const [searchTerm, setSearchTerm] = useState("");
@@ -201,7 +203,17 @@ export default function JobPageNew() {
   
   // Handle applying for a job
   const handleApplyForJob = (jobId: number) => {
-    applyForJobMutation.mutate(jobId);
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please log in to apply for jobs",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Navigate to the application form page
+    navigate(`/apply/${jobId}`);
   };
   
   // Render a job card with match percentage
@@ -278,7 +290,7 @@ export default function JobPageNew() {
                   <Button 
                     className="bg-purple-600 hover:bg-purple-700"
                     onClick={() => handleApplyForJob(job.id)}
-                    disabled={applyForJobMutation.isPending}
+                    disabled={!user}
                   >
                     Apply Now <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>

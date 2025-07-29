@@ -6,6 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import '../styles/job-page.css';
+import { useLocation } from 'wouter';
 
 // Import at top of file
 import { useAuth } from '@/hooks/use-auth';
@@ -17,6 +18,7 @@ const JobCard: React.FC<{
 }> = ({ job, matchPercentage }) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [, navigate] = useLocation();
 
   const handleSaveJob = async (jobId: number) => {
     try {
@@ -35,21 +37,18 @@ const JobCard: React.FC<{
     }
   };
 
-  const handleApplyJob = async (jobId: number) => {
-    try {
-      await apiRequest('POST', `/api/jobs/${jobId}/apply`);
+  const handleApplyJob = (jobId: number) => {
+    if (!user) {
       toast({
-        title: 'Application submitted',
-        description: 'Your application has been submitted successfully',
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/jobs/applications'] });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to submit application. Please try again.',
+        title: 'Login required',
+        description: 'Please log in to apply for jobs',
         variant: 'destructive',
       });
+      return;
     }
+    
+    // Navigate to the application form page
+    navigate(`/apply/${jobId}`);
   };
 
   return (

@@ -1,12 +1,11 @@
 import { useAuth } from "@/hooks/use-auth";
-import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Job } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
 import { MapPin, Briefcase, Clock, Building, ChevronRight } from "lucide-react";
+import { useLocation } from "wouter";
 
 interface JobCardProps {
   job: Job;
@@ -17,41 +16,20 @@ interface JobCardProps {
 export default function JobCard({ job, matchPercentage, highlighted = false }: JobCardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-
-  const applyMutation = useMutation({
-    mutationFn: async (jobId: number) => {
-      const res = await apiRequest("POST", `/api/jobs/${jobId}/apply`, {
-        note: "Applied via job card"
-      });
-      return await res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/applications"] });
-      toast({
-        title: "Application successful",
-        description: `Your application for ${job.title} at ${job.company} has been submitted successfully!`,
-        variant: "default"
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Application failed",
-        description: error instanceof Error ? error.message : "Failed to submit application",
-        variant: "destructive",
-      });
-    },
-  });
+  const [, navigate] = useLocation();
 
   const handleApply = () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please log in to apply for jobs",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    // Display a toast notification to inform user
-    toast({
-      title: "Applying for job",
-      description: `Submitting your application for ${job.title} at ${job.company}...`
-    });
-    
-    applyMutation.mutate(job.id);
+    // Navigate to the application form page
+    navigate(`/apply/${job.id}`);
   };
 
   return (
@@ -119,9 +97,9 @@ export default function JobCard({ job, matchPercentage, highlighted = false }: J
                   !user ? 'opacity-70' : ''
                 }`}
                 onClick={handleApply}
-                disabled={applyMutation.isPending || !user}
+                disabled={!user}
               >
-                {applyMutation.isPending ? "Applying..." : "Apply Now"}
+                Apply Now
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
