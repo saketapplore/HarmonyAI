@@ -14,6 +14,7 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 export default function SavedJobsPage() {
   const { toast } = useToast();
   const [expandedJobIds, setExpandedJobIds] = useState<Set<number>>(new Set());
+  const [removedJobIds, setRemovedJobIds] = useState<Set<number>>(new Set());
   const [_, navigate] = useLocation();
 
   // Fetch saved jobs
@@ -66,15 +67,30 @@ export default function SavedJobsPage() {
   
   // Use sample jobs if API returns empty
   const isLoading = isLoadingApi;
-  const savedJobs = (apiSavedJobs && apiSavedJobs.length > 0) ? apiSavedJobs : sampleSavedJobs;
+  const allSavedJobs = (apiSavedJobs && apiSavedJobs.length > 0) ? apiSavedJobs : sampleSavedJobs;
+  
+  // Filter out removed jobs
+  const savedJobs = allSavedJobs.filter(job => !removedJobIds.has(job.id));
 
   // Unsave job mutation
   const unsaveJobMutation = useMutation({
     mutationFn: async (jobId: number) => {
+      // Check if this is a sample job (not from API)
+      const isSampleJob = sampleSavedJobs.some(job => job.id === jobId);
+      
+      if (isSampleJob) {
+        // For sample jobs, just return success without making API call
+        return { success: true };
+      }
+      
+      // For real saved jobs, make the API call
       const res = await apiRequest("DELETE", `/api/jobs/${jobId}/save`);
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, jobId) => {
+      // Add the job ID to the removed set
+      setRemovedJobIds(prev => new Set([...prev, jobId]));
+      
       toast({
         title: "Job removed",
         description: "The job has been removed from your saved jobs."
