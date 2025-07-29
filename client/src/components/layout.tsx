@@ -487,7 +487,6 @@ export default function Layout({ children }: LayoutProps) {
               {location === "/" && "Feed"}
               {location === "/my-network" && "My Network"}
               {location === "/recruiter-network" && "My Network"}
-              {location === "/jobs" && "Jobs"}
               {location === "/recruiter-jobs" && "Jobs"}
               {location === "/applicant-tracking" && "Applicant Tracking"}
               {location === "/create-job-posting" && "Post a Job"}

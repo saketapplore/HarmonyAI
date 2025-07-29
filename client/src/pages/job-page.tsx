@@ -20,7 +20,6 @@ import {
   Building, 
   ChevronRight,
   Clock,
-  DollarSign,
   Cpu,
   ArrowUpDown,
   CheckCircle

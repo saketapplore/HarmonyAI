@@ -17,7 +17,6 @@ import {
   Building, 
   ChevronRight,
   Clock,
-  DollarSign,
   Cpu,
   ArrowUpDown,
   CheckCircle
@@ -254,7 +253,6 @@ export default function JobPageNew() {
               
               <div className="flex items-center text-sm text-gray-500 mt-2 space-x-6">
                 <div className="flex items-center">
-                  <DollarSign className="h-4 w-4 mr-1" />
                   <span>{job.salary}</span>
                 </div>
                 <div className="flex items-center">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/layout';
-import { ChevronRight, Briefcase, MapPin, Clock, DollarSign, Search, Building, X } from 'lucide-react';
+import { ChevronRight, Briefcase, MapPin, Clock, Search, Building, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -82,7 +82,6 @@ const JobCard: React.FC<{
       <div className="job-footer">
         <div className="job-meta">
           <div className="job-meta-item">
-            <DollarSign className="h-4 w-4" />
             {job.salary}
           </div>
           <div className="job-meta-item">
