@@ -409,7 +409,7 @@ export default function AuthPage() {
   return (
     <div className="h-screen flex flex-col lg:flex-row overflow-hidden">
       {/* Hero Section */}
-      <div className="hidden lg:flex bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 text-white lg:w-1/2 p-4 sm:p-6 md:p-8 lg:p-12 flex-col justify-center relative overflow-hidden">
+      <div className="hidden lg:flex text-gray-800 lg:w-1/2 p-4 sm:p-6 md:p-8 lg:p-12 flex-col justify-center relative overflow-hidden" style={{ backgroundColor: '#EDE4FF' }}>
         {/* Background with elegant pattern */}
         <div className="absolute inset-0 opacity-20">
           <div className="w-full h-full" style={{ 
@@ -423,72 +423,72 @@ export default function AuthPage() {
         <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-white/5 blur-3xl"></div>
         <div className="absolute top-1/4 right-8 w-2 h-24 bg-white/20 rounded-full"></div>
         <div className="absolute top-1/3 right-16 w-2 h-16 bg-white/10 rounded-full"></div>
-        <div className="absolute top-1/2 -right-20 w-40 h-40 rounded-full bg-purple-500/10 blur-xl"></div>
+        <div className="absolute top-1/2 -right-20 w-40 h-40 rounded-full bg-blue-500/10 blur-xl"></div>
         
         {/* Abstract shapes */}
-        <div className="absolute top-10 right-10 w-20 h-20 rounded-lg rotate-12 bg-gradient-to-br from-purple-400/15 to-purple-300/15 backdrop-blur-sm"></div>
-        <div className="absolute bottom-20 left-8 w-16 h-16 rounded-full bg-gradient-to-br from-purple-400/15 to-purple-300/15 backdrop-blur-sm"></div>
+        <div className="absolute top-10 right-10 w-20 h-20 rounded-lg rotate-12 bg-gradient-to-br from-blue-400/15 to-blue-300/15 backdrop-blur-sm"></div>
+        <div className="absolute bottom-20 left-8 w-16 h-16 rounded-full bg-gradient-to-br from-blue-400/15 to-blue-300/15 backdrop-blur-sm"></div>
         
         <div className="max-w-md mx-auto relative z-10 flex flex-col h-full justify-center">
           <div className="mb-8 lg:mb-12 flex items-center justify-start">
             <HarmonyLogo size="xl" />
           </div>
           
-          <h2 className="text-xl lg:text-2xl font-medium mb-4 lg:mb-5 text-white">
+          <h2 className="text-xl lg:text-2xl font-medium mb-4 lg:mb-5 text-gray-800">
             Professional Networking Platform
           </h2>
           
-          <div className="w-16 lg:w-20 h-1 bg-purple-300 mb-4 lg:mb-6 rounded-full"></div>
+          <div className="w-16 lg:w-20 h-1 bg-purple-400 mb-4 lg:mb-6 rounded-full"></div>
           
-          <p className="text-base lg:text-lg mb-6 lg:mb-10 text-white/90 leading-relaxed">
+          <p className="text-base lg:text-lg mb-6 lg:mb-10 text-gray-700 leading-relaxed">
             Connect with professionals, showcase your skills with Digital CVs, and find your perfect job match with AI assistance.
           </p>
           
           <div className="space-y-4 lg:space-y-6">
-            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/10 transition-colors">
-              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/20 flex items-center justify-center shadow-lg">
-                <svg className="h-5 w-5 lg:h-6 lg:w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/20 transition-colors">
+              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/40 flex items-center justify-center shadow-lg">
+                <svg className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-sm lg:text-base text-white mb-1">Digital CVs</h3>
-                <p className="text-xs lg:text-sm text-white/70">Video-based profiles that showcase your personality and skills</p>
+                <h3 className="font-semibold text-sm lg:text-base text-gray-800 mb-1">Digital CVs</h3>
+                <p className="text-xs lg:text-sm text-gray-600">Video-based profiles that showcase your personality and skills</p>
               </div>
             </div>
             
-            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/10 transition-colors">
-              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/20 flex items-center justify-center shadow-lg">
-                <svg className="h-5 w-5 lg:h-6 lg:w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/20 transition-colors">
+              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/40 flex items-center justify-center shadow-lg">
+                <svg className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-sm lg:text-base text-white mb-1">AI Job Matching</h3>
-                <p className="text-xs lg:text-sm text-white/70">Intelligent matching based on your unique profile</p>
+                <h3 className="font-semibold text-sm lg:text-base text-gray-800 mb-1">AI Job Matching</h3>
+                <p className="text-xs lg:text-sm text-gray-600">Intelligent matching based on your unique profile</p>
               </div>
             </div>
             
-            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/10 transition-colors">
-              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/20 flex items-center justify-center shadow-lg">
-                <svg className="h-5 w-5 lg:h-6 lg:w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="flex items-center p-2 lg:p-3 rounded-lg hover:bg-white/20 transition-colors">
+              <div className="flex-shrink-0 mr-3 lg:mr-4 w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-white/40 flex items-center justify-center shadow-lg">
+                <svg className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-sm lg:text-base text-white mb-1">Communities</h3>
-                <p className="text-xs lg:text-sm text-white/70">Connect with professionals to grow your network</p>
+                <h3 className="font-semibold text-sm lg:text-base text-gray-800 mb-1">Communities</h3>
+                <p className="text-xs lg:text-sm text-gray-600">Connect with professionals to grow your network</p>
               </div>
             </div>
           </div>
           
           <div className="mt-8 lg:mt-12">
-            <p className="text-xs lg:text-sm text-white/80">Already trusted by thousands of professionals worldwide</p>
+            <p className="text-xs lg:text-sm text-gray-600">Already trusted by thousands of professionals worldwide</p>
             <div className="flex items-center mt-3 lg:mt-4 space-x-3 lg:space-x-4">
-              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-white/30 rounded-full"></div>
-              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-white/30 rounded-full"></div>
-              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-white/30 rounded-full"></div>
-              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-white/30 rounded-full"></div>
+              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-purple-400 rounded-full"></div>
+              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-purple-300 rounded-full"></div>
+              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-purple-300 rounded-full"></div>
+              <div className="w-5 h-5 lg:w-6 lg:h-6 bg-purple-300 rounded-full"></div>
             </div>
           </div>
         </div>

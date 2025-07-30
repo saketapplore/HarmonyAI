@@ -61,7 +61,7 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
       className={`desktop-sidebar ${collapsed ? 'w-16' : 'w-64'} bg-white shadow h-screen fixed overflow-y-auto hidden md:block transition-all duration-300`}
     >
       <div className={`${collapsed ? 'p-2' : 'p-4'}`}>
-        <div className={`${collapsed ? 'text-center mb-4' : 'flex justify-start mb-8'}`}>
+        <div className={`${collapsed ? 'text-center mb-4' : 'flex justify-start mb-4'}`}>
           {collapsed ? (
             <HarmonyLogo size="sm" showText={false} />
           ) : (
@@ -70,7 +70,7 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
         </div>
 
         {user && (
-          <div className={`${collapsed ? 'mb-4' : 'mb-8'}`}>
+          <div className={`${collapsed ? 'mb-4' : 'mb-4'}`}>
             <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-center mb-4'}`}>
               <Avatar className={`${collapsed ? 'w-10 h-10' : 'w-20 h-20'}`}>
                 <AvatarImage src={user.profileImageUrl || undefined} alt={user.name || user.username || ""} />
