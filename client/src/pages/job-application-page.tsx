@@ -289,7 +289,7 @@ export default function JobApplicationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column - Application form */}
           <div className="lg:col-span-2">
-            <Card>
+            <Card className="bg-[#f0f6ff]">
               <CardHeader>
                 <CardTitle>Application Details</CardTitle>
                 <CardDescription>
@@ -769,7 +769,7 @@ export default function JobApplicationPage() {
           {/* Right column - Job details */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              <Card>
+              <Card className="bg-[#f0f6ff]">
                 <CardHeader>
                   <CardTitle>Job Information</CardTitle>
                 </CardHeader>
