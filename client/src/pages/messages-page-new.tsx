@@ -92,14 +92,10 @@ export default function MessagesPageNew() {
       <div className="max-w-6xl mx-auto h-[calc(100vh-120px)] flex bg-white rounded-lg shadow-sm overflow-hidden">
         {/* Left sidebar - Contact list (always visible) */}
         <div 
-          className="w-80 border-r border-purple-200/30 flex flex-col relative"
+          className="w-80 border-r border-purple-200/30 flex flex-col relative shadow-lg"
           style={{
-            background: `linear-gradient(135deg, #f9f7ff 0%, #f3f0ff 50%, #f9f7ff 100%)`,
-            backgroundImage: `
-              radial-gradient(circle at 20% 30%, rgba(138, 63, 252, 0.08) 0%, transparent 60%),
-              radial-gradient(circle at 80% 70%, rgba(138, 63, 252, 0.06) 0%, transparent 60%),
-              url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%238a3ffc' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")
-            `
+            backgroundColor: '#f3f0fa',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)'
           }}
         >
           {/* Header */}

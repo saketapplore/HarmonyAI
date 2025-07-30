@@ -81,6 +81,8 @@ export interface IStorage {
   // Connection operations
   createConnection(connection: InsertConnection): Promise<Connection>;
   updateConnectionStatus(id: number, status: string): Promise<Connection | undefined>;
+  getConnectionById(id: number): Promise<Connection | undefined>;
+  deleteConnection(id: number): Promise<boolean>;
   getUserConnections(userId: number): Promise<{connection: Connection, user: User}[]>;
   getPendingConnections(userId: number): Promise<{connection: Connection, user: User}[]>;
   getSentPendingConnections(userId: number): Promise<{connection: Connection, user: User}[]>;
@@ -779,6 +781,18 @@ export class MemStorage implements IStorage {
     }
     
     return result;
+  }
+
+  async getConnectionById(id: number): Promise<Connection | undefined> {
+    return this.connections.get(id);
+  }
+
+  async deleteConnection(id: number): Promise<boolean> {
+    if (this.connections.has(id)) {
+      this.connections.delete(id);
+      return true;
+    }
+    return false;
   }
 
   // Message operations
@@ -1557,6 +1571,45 @@ export class DatabaseStorage implements IStorage {
     return result;
   }
 
+  async getConnectionById(id: number): Promise<Connection | undefined> {
+    const [connection] = await db
+      .select()
+      .from(connections)
+      .where(eq(connections.id, id));
+    
+    return connection;
+  }
+
+  async deleteConnection(id: number): Promise<boolean> {
+    try {
+      console.log(`DatabaseStorage: Attempting to delete connection ${id}`);
+      
+      // First check if the connection exists
+      const [existingConnection] = await db
+        .select()
+        .from(connections)
+        .where(eq(connections.id, id));
+      
+      if (!existingConnection) {
+        console.log(`DatabaseStorage: Connection ${id} not found in database`);
+        return false;
+      }
+      
+      console.log(`DatabaseStorage: Found connection to delete:`, existingConnection);
+      
+      const result = await db
+        .delete(connections)
+        .where(eq(connections.id, id))
+        .returning();
+      
+      console.log(`DatabaseStorage: Delete result:`, result);
+      return result.length > 0;
+    } catch (error) {
+      console.error("DatabaseStorage: Error deleting connection:", error);
+      return false;
+    }
+  }
+
   // Message operations
   async createMessage(message: InsertMessage): Promise<Message> {
     const [newMessage] = await db
@@ -2322,6 +2375,107 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error deleting password reset request:", error);
       return false;
+    }
+  }
+
+  // Company operations
+  async getAllCompanies(): Promise<Company[]> {
+    try {
+      return await db.select().from(companies);
+    } catch (error) {
+      console.error("Error getting all companies:", error);
+      return [];
+    }
+  }
+
+  async getCompanies(): Promise<Company[]> {
+    try {
+      return await db.select().from(companies);
+    } catch (error) {
+      console.error("Error getting companies:", error);
+      return [];
+    }
+  }
+
+  async getCompany(id: number): Promise<Company | undefined> {
+    try {
+      const [company] = await db.select().from(companies).where(eq(companies.id, id));
+      return company;
+    } catch (error) {
+      console.error("Error getting company:", error);
+      return undefined;
+    }
+  }
+
+  async createCompany(company: InsertCompany): Promise<Company> {
+    try {
+      const [newCompany] = await db.insert(companies).values(company).returning();
+      return newCompany;
+    } catch (error) {
+      console.error("Error creating company:", error);
+      throw error;
+    }
+  }
+
+  async updateCompany(id: number, company: Partial<Company>): Promise<Company | undefined> {
+    try {
+      const [updatedCompany] = await db
+        .update(companies)
+        .set(company)
+        .where(eq(companies.id, id))
+        .returning();
+      return updatedCompany;
+    } catch (error) {
+      console.error("Error updating company:", error);
+      return undefined;
+    }
+  }
+
+  async deleteCompany(id: number): Promise<boolean> {
+    try {
+      const result = await db.delete(companies).where(eq(companies.id, id));
+      return result.rowCount !== null && result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      return false;
+    }
+  }
+
+  async getUserCompanies(userId: number): Promise<Company[]> {
+    try {
+      return await db
+        .select()
+        .from(companies)
+        .where(eq(companies.ownerId, userId));
+    } catch (error) {
+      console.error("Error getting user companies:", error);
+      return [];
+    }
+  }
+
+  async getCompanyPosts(companyId: number): Promise<Post[]> {
+    try {
+      return await db
+        .select()
+        .from(posts)
+        .where(eq(posts.companyId, companyId))
+        .orderBy(desc(posts.createdAt));
+    } catch (error) {
+      console.error("Error getting company posts:", error);
+      return [];
+    }
+  }
+
+  async getCompanyJobs(companyId: number): Promise<Job[]> {
+    try {
+      return await db
+        .select()
+        .from(jobs)
+        .where(eq(jobs.companyId, companyId))
+        .orderBy(desc(jobs.createdAt));
+    } catch (error) {
+      console.error("Error getting company jobs:", error);
+      return [];
     }
   }
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
@@ -87,6 +87,11 @@ export default function NetworkPage() {
     enabled: !!user
   });
 
+  // Debug: Log sent pending connections whenever they change
+  useEffect(() => {
+    console.log(`Frontend: Current sent pending connections:`, sentPendingConnections);
+  }, [sentPendingConnections]);
+
   // Fetch users for suggestions
   const { data: allUsers, isLoading: loadingUsers } = useQuery<User[]>({
     queryKey: ["/api/users"],
@@ -119,9 +124,50 @@ export default function NetworkPage() {
       });
       return await res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/connections"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/connections/sent-pending"] });
+    onMutate: async (receiverId) => {
+      console.log(`Frontend: Optimistic update for sending connection request to user ${receiverId}`);
+      
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["/api/connections/sent-pending"] });
+      
+      // Snapshot the previous value
+      const previousSentPending = queryClient.getQueryData(["/api/connections/sent-pending"]);
+      
+      // Get the user data for the optimistic update
+      const targetUser = allUsers?.find(user => user.id === receiverId);
+      
+      if (targetUser) {
+        // Create optimistic connection data
+        const optimisticConnection = {
+          connection: {
+            id: Date.now(), // Temporary ID
+            requesterId: user?.id || 0,
+            receiverId: receiverId,
+            status: "pending",
+            createdAt: new Date().toISOString(),
+            message: connectionMessage
+          },
+          user: targetUser
+        };
+        
+        // Optimistically update the sent-pending connections
+        queryClient.setQueryData(["/api/connections/sent-pending"], (old: any) => {
+          if (old && Array.isArray(old)) {
+            return [optimisticConnection, ...old];
+          }
+          return [optimisticConnection];
+        });
+      }
+      
+      // Return a context object with the snapshotted value
+      return { previousSentPending };
+    },
+    onSuccess: (data, receiverId) => {
+      console.log(`Frontend: Successfully sent connection request to user ${receiverId}`);
+      
+      // Force a refetch to get the real data from server
+      queryClient.refetchQueries({ queryKey: ["/api/connections/sent-pending"] });
+      
       toast({
         title: "Connection request sent",
         description: "Your connection request has been sent successfully."
@@ -130,7 +176,14 @@ export default function NetworkPage() {
       setConnectionMessage("");
       setSelectedUser(null);
     },
-    onError: (error) => {
+    onError: (error, receiverId, context) => {
+      console.error(`Frontend: Error sending connection request:`, error);
+      
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousSentPending) {
+        queryClient.setQueryData(["/api/connections/sent-pending"], context.previousSentPending);
+      }
+      
       toast({
         title: "Failed to send request",
         description: error.message,
@@ -165,18 +218,86 @@ export default function NetworkPage() {
   // Reject connection mutation
   const rejectConnectionMutation = useMutation({
     mutationFn: async (connectionId: number) => {
-      await apiRequest("DELETE", `/api/connections/${connectionId}`, {});
+      console.log(`Frontend: Attempting to delete connection ${connectionId}`);
+      const response = await apiRequest("DELETE", `/api/connections/${connectionId}`, {});
+      console.log(`Frontend: Delete response:`, response);
+      return response;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/connections"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/connections/pending"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/connections/sent-pending"] });
+    onMutate: async (connectionId) => {
+      console.log(`Frontend: Optimistic update for connection ${connectionId}`);
+      
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["/api/connections/sent-pending"] });
+      await queryClient.cancelQueries({ queryKey: ["/api/connections/pending"] });
+      
+      // Snapshot the previous value
+      const previousSentPending = queryClient.getQueryData(["/api/connections/sent-pending"]);
+      const previousPending = queryClient.getQueryData(["/api/connections/pending"]);
+      
+      // Optimistically update to the new value
+      queryClient.setQueryData(["/api/connections/sent-pending"], (old: any) => {
+        if (old && Array.isArray(old)) {
+          return old.filter((conn: any) => conn.connection.id !== connectionId);
+        }
+        return old;
+      });
+      
+      queryClient.setQueryData(["/api/connections/pending"], (old: any) => {
+        if (old && Array.isArray(old)) {
+          return old.filter((conn: any) => conn.connection.id !== connectionId);
+        }
+        return old;
+      });
+      
+      // Return a context object with the snapshotted value
+      return { previousSentPending, previousPending };
+    },
+    onSuccess: (data, connectionId) => {
+      console.log(`Frontend: Successfully deleted connection ${connectionId}`);
+      console.log(`Frontend: Updating cache...`);
+      
+      // Force immediate cache update for both sent-pending and pending connections
+      queryClient.setQueryData(["/api/connections/sent-pending"], (oldData: any) => {
+        console.log(`Frontend: Updating sent-pending cache, old data:`, oldData);
+        if (oldData && Array.isArray(oldData)) {
+          const filteredData = oldData.filter((conn: any) => conn.connection.id !== connectionId);
+          console.log(`Frontend: Filtered sent-pending data:`, filteredData);
+          return filteredData;
+        }
+        return oldData;
+      });
+      
+      queryClient.setQueryData(["/api/connections/pending"], (oldData: any) => {
+        console.log(`Frontend: Updating pending cache, old data:`, oldData);
+        if (oldData && Array.isArray(oldData)) {
+          const filteredData = oldData.filter((conn: any) => conn.connection.id !== connectionId);
+          console.log(`Frontend: Filtered pending data:`, filteredData);
+          return filteredData;
+        }
+        return oldData;
+      });
+      
+      // Force a refetch to ensure data consistency
+      queryClient.refetchQueries({ queryKey: ["/api/connections/sent-pending"] });
+      queryClient.refetchQueries({ queryKey: ["/api/connections/pending"] });
+      
+      console.log(`Frontend: Cache updated and queries refetched`);
       toast({
         title: "Connection request ignored",
         description: "The connection request has been removed."
       });
     },
-    onError: (error) => {
+    onError: (error, connectionId, context) => {
+      console.error(`Frontend: Error deleting connection:`, error);
+      
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousSentPending) {
+        queryClient.setQueryData(["/api/connections/sent-pending"], context.previousSentPending);
+      }
+      if (context?.previousPending) {
+        queryClient.setQueryData(["/api/connections/pending"], context.previousPending);
+      }
+      
       toast({
         title: "Failed to ignore request",
         description: error.message,

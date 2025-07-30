@@ -1489,6 +1489,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/connections/:id", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const connectionId = parseInt(req.params.id);
+      console.log(`Attempting to delete connection ${connectionId} for user ${req.user.id}`);
+      
+      // Check if connection exists and user has permission to delete it
+      const connection = await storage.getConnectionById(connectionId);
+      if (!connection) {
+        console.log(`Connection ${connectionId} not found`);
+        return res.status(404).json({ message: "Connection not found" });
+      }
+
+      console.log(`Found connection:`, connection);
+
+      // User can only delete connections they are involved in (either as requester or receiver)
+      if (connection.requesterId !== req.user.id && connection.receiverId !== req.user.id) {
+        console.log(`User ${req.user.id} not authorized to delete connection ${connectionId}`);
+        return res.status(403).json({ message: "You can only delete your own connections" });
+      }
+
+      const deleteResult = await storage.deleteConnection(connectionId);
+      console.log(`Delete result for connection ${connectionId}:`, deleteResult);
+      
+      res.status(200).json({ message: "Connection deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting connection:", error);
+      next(error);
+    }
+  });
+
   // Message routes
   app.post("/api/messages", async (req, res, next) => {
     if (!req.isAuthenticated()) {
