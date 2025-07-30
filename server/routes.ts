@@ -1122,22 +1122,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const jobId = parseInt(req.params.id);
+      console.log(`Job application request - Job ID: ${jobId}, User ID: ${req.user.id}`);
+      
       const job = await storage.getJobById(jobId);
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
 
+      console.log(`Job found: ${job.title} by ${job.company}`);
+
       // Extract application data from request body
       const { coverLetter, experience, education, skills, ...rest } = req.body;
+      console.log(`Application data received:`, { coverLetter, skills, rest });
       
+      // Validate and convert user ID
+      const applicantId = parseInt(req.user.id as any);
+      if (isNaN(applicantId) || applicantId <= 0) {
+        console.error(`Invalid user ID in job application: ${req.user.id}, type: ${typeof req.user.id}`);
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+
       // Create application record
       const applicationData = insertJobApplicationSchema.parse({
         jobId,
-        applicantId: req.user.id,
+        applicantId,
         note: coverLetter || ""
       });
       
+      console.log(`Creating job application with data:`, applicationData);
       const application = await storage.createJobApplication(applicationData);
+      console.log(`Job application created successfully:`, application);
       
       // Update user profile with any new skills
       if (skills && skills.length > 0) {
@@ -1156,6 +1170,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Return application data to client
       res.status(201).json(application);
     } catch (error) {
+      console.error('Error in job application route:', error);
       next(error);
     }
   });
@@ -1186,6 +1201,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next(error);
     }
   });
+
+  // Applied jobs endpoint for job seekers
+  app.get("/api/jobs/applied", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to view applied jobs" });
+    }
+  
+    try {
+      if (req.user.isRecruiter) {
+        return res.status(403).json({ message: "This endpoint is for job seekers only" });
+      }
+  
+      const userId = Number(req.user.id);
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+  
+      const applications = await storage.getJobApplicationsByUserId(userId);
+      res.json(applications);
+    } catch (error) {
+      console.error('Error fetching applied jobs:', error);
+      res.status(500).json({ 
+        message: "Internal server error while fetching applied jobs",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+  
+
+  // Debug endpoint to check all job applications
+  app.get("/api/debug/applications", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+  
+    try {
+      const userId = Number(req.user.id);
+      if (!userId || isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+  
+      const allApplications = await storage.getJobApplicationsByUserId(userId);
+  
+      res.json({
+        totalApplications: allApplications.length,
+        applications: allApplications,
+        currentUser: req.user
+      });
+    } catch (error) {
+      console.error('Error in debug endpoint:', error);
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+  });
+  
 
   app.patch("/api/applications/:id/status", async (req, res, next) => {
     if (!req.isAuthenticated() || !req.user.isRecruiter) {

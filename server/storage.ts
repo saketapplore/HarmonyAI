@@ -206,6 +206,15 @@ export class MemStorage implements IStorage {
     
     // Initialize sample companies
     this.initializeSampleCompanies();
+    
+    // Initialize sample users
+    this.initializeSampleUsers();
+    
+    // Initialize sample jobs
+    this.initializeSampleJobs();
+    
+    // Initialize sample job applications
+    this.initializeSampleJobApplications();
   }
 
   private initializeSampleCompanies() {
@@ -271,6 +280,145 @@ export class MemStorage implements IStorage {
         createdAt: new Date()
       };
       this.companies.set(id, company);
+    });
+  }
+
+  private initializeSampleUsers() {
+    const sampleUsers = [
+      {
+        username: "john",
+        email: "john@example.com",
+        password: "password123",
+        name: "John Doe",
+        title: "Software Developer",
+        bio: "Passionate software developer with 5+ years of experience",
+        location: "Bangalore, India",
+        skills: ["JavaScript", "React", "Node.js", "Python"],
+        isRecruiter: false
+      },
+      {
+        username: "sarah",
+        email: "sarah@example.com", 
+        password: "password123",
+        name: "Sarah Johnson",
+        title: "Product Manager",
+        bio: "Experienced product manager with expertise in agile methodologies",
+        location: "Mumbai, India",
+        skills: ["Product Management", "Agile", "Scrum", "User Research"],
+        isRecruiter: false
+      },
+      {
+        username: "mike",
+        email: "mike@example.com",
+        password: "password123", 
+        name: "Mike Wilson",
+        title: "Senior Recruiter",
+        bio: "Senior recruiter with 8+ years of experience in tech hiring",
+        location: "Delhi, India",
+        skills: ["Recruitment", "Talent Acquisition", "HR", "Interviewing"],
+        isRecruiter: true
+      }
+    ];
+
+    sampleUsers.forEach(userData => {
+      const id = this.currentId.users++;
+      const user = {
+        id,
+        ...userData,
+        profileImageUrl: null,
+        createdAt: new Date()
+      };
+      this.users.set(id, user);
+    });
+  }
+
+  private initializeSampleJobs() {
+    const sampleJobs = [
+      {
+        title: "Senior Software Engineer",
+        company: "TechVision Solutions",
+        location: "Bangalore, Karnataka",
+        type: "Full-time",
+        experience: "5-8 years",
+        salary: "₹15-25 LPA",
+        description: "We are looking for a Senior Software Engineer to join our AI/ML team. You will be responsible for developing scalable machine learning solutions and working with cutting-edge technologies.",
+        requirements: "React, Node.js, Python, Machine Learning, AWS",
+        skills: ["React", "Node.js", "Python", "Machine Learning", "AWS", "Docker"],
+        postedBy: 1,
+        companyId: 1
+      },
+      {
+        title: "Full Stack Developer",
+        company: "InnovateHub",
+        location: "Mumbai, Maharashtra",
+        type: "Full-time",
+        experience: "3-5 years",
+        salary: "₹12-18 LPA",
+        description: "Join our product development team to build innovative digital solutions. You will work on end-to-end development of web applications.",
+        requirements: "JavaScript, React, Node.js, MongoDB, Express",
+        skills: ["JavaScript", "React", "Node.js", "MongoDB", "Express", "Git"],
+        postedBy: 2,
+        companyId: 2
+      },
+      {
+        title: "Data Scientist",
+        company: "DataDriven Analytics",
+        location: "Hyderabad, Telangana",
+        type: "Full-time",
+        experience: "4-6 years",
+        salary: "₹18-25 LPA",
+        description: "Lead data science initiatives and develop predictive models for business intelligence. Work with large datasets and implement ML algorithms.",
+        requirements: "Python, R, SQL, Machine Learning, Statistics",
+        skills: ["Python", "R", "SQL", "Machine Learning", "Statistics", "TensorFlow"],
+        postedBy: 3,
+        companyId: 3
+      }
+    ];
+
+    sampleJobs.forEach(jobData => {
+      const id = this.currentId.jobs++;
+      const job = {
+        id,
+        ...jobData,
+        createdAt: new Date()
+      };
+      this.jobs.set(id, job);
+    });
+  }
+
+  private initializeSampleJobApplications() {
+    // Create sample job applications for user ID 1 (john)
+    const sampleApplications = [
+      {
+        jobId: 1,
+        applicantId: 1,
+        status: "applied",
+        note: "I'm very interested in this position and believe my skills match perfectly.",
+        createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
+      },
+      {
+        jobId: 2,
+        applicantId: 1,
+        status: "shortlisted",
+        note: "Excited about this opportunity and ready to contribute to the team.",
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+      },
+      {
+        jobId: 3,
+        applicantId: 1,
+        status: "interview",
+        note: "Looking forward to discussing this role in detail.",
+        createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+      }
+    ];
+
+    sampleApplications.forEach(appData => {
+      const id = this.currentId.jobApplications++;
+      const application = {
+        id,
+        ...appData
+      };
+      this.jobApplications.set(id, application);
     });
   }
 
@@ -673,6 +821,7 @@ export class MemStorage implements IStorage {
 
   // Job application operations
   async createJobApplication(application: InsertJobApplication): Promise<JobApplication> {
+    console.log(`Creating job application in MemStorage:`, application);
     const id = this.currentId.jobApplications++;
     const newApplication: JobApplication = { 
       ...application, 
@@ -680,7 +829,9 @@ export class MemStorage implements IStorage {
       status: "applied",
       createdAt: new Date() 
     };
+    console.log(`Job application created with ID ${id}:`, newApplication);
     this.jobApplications.set(id, newApplication);
+    console.log(`Total job applications in storage:`, this.jobApplications.size);
     return newApplication;
   }
 
@@ -700,17 +851,30 @@ export class MemStorage implements IStorage {
   }
 
   async getJobApplicationsByUserId(userId: number): Promise<{application: JobApplication, job: Job}[]> {
+    console.log(`Getting job applications for user ID: ${userId}`);
+    console.log(`Total job applications in storage:`, this.jobApplications.size);
+    
     const applications = Array.from(this.jobApplications.values())
       .filter((app) => app.applicantId === userId);
     
+    console.log(`Found ${applications.length} applications for user ${userId}:`, applications);
+    
     const result = [];
     for (const application of applications) {
-      const job = await this.getJobById(application.jobId);
-      if (job) {
-        result.push({ application, job });
+      try {
+        const job = await this.getJobById(application.jobId);
+        if (job) {
+          result.push({ application, job });
+          console.log(`Added application ${application.id} for job ${job.title}`);
+        } else {
+          console.warn(`Job with ID ${application.jobId} not found for application ${application.id}`);
+        }
+      } catch (error) {
+        console.error(`Error fetching job ${application.jobId} for application ${application.id}:`, error);
       }
     }
     
+    console.log(`Returning ${result.length} applications with job data for user ${userId}`);
     return result;
   }
 
@@ -1481,25 +1645,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getJobApplicationsByUserId(userId: number): Promise<{application: JobApplication, job: Job}[]> {
-    const applications = await db
-      .select()
-      .from(jobApplications)
-      .where(eq(jobApplications.applicantId, userId));
+    console.log(`DatabaseStorage: Getting job applications for user ID: ${userId}, type: ${typeof userId}`);
     
-    const result = [];
-    
-    for (const application of applications) {
-      const [job] = await db
+    try {
+      const applications = await db
         .select()
-        .from(jobs)
-        .where(eq(jobs.id, application.jobId));
+        .from(jobApplications)
+        .where(eq(jobApplications.applicantId, userId));
       
-      if (job) {
-        result.push({ application, job });
+      console.log(`DatabaseStorage: Found ${applications.length} applications for user ${userId}`);
+      
+      const result = [];
+      
+      for (const application of applications) {
+        try {
+          const [job] = await db
+            .select()
+            .from(jobs)
+            .where(eq(jobs.id, application.jobId));
+          
+          if (job) {
+            result.push({ application, job });
+            console.log(`DatabaseStorage: Added application ${application.id} for job ${job.title}`);
+          } else {
+            console.warn(`Job with ID ${application.jobId} not found for application ${application.id}`);
+          }
+        } catch (error) {
+          console.error(`Error fetching job ${application.jobId} for application ${application.id}:`, error);
+        }
       }
+      
+      console.log(`DatabaseStorage: Returning ${result.length} applications with job data for user ${userId}`);
+      return result;
+    } catch (error) {
+      console.error(`DatabaseStorage: Error in getJobApplicationsByUserId for user ${userId}:`, error);
+      throw error;
     }
-    
-    return result;
   }
 
   async updateJobApplicationStatus(id: number, status: string): Promise<JobApplication | undefined> {

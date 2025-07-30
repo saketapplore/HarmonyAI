@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut, Home, Users, Briefcase, MessageSquare, Settings, UserCircle, ShieldAlert, BookmarkIcon, Building2 } from "lucide-react";
+import { LogOut, Home, Users, Briefcase, MessageSquare, Settings, UserCircle, ShieldAlert, BookmarkIcon, Building2, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,6 +26,14 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
   });
   
   const savedJobsCount = savedJobs?.length || 0;
+
+  // Fetch applied jobs count
+  const { data: appliedJobs } = useQuery<{application: any, job: Job}[]>({
+    queryKey: ["/api/jobs/applied"],
+    enabled: !!user && !user.isRecruiter,
+  });
+  
+  const appliedJobsCount = appliedJobs?.length || 0;
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -166,6 +174,53 @@ export default function Sidebar({ collapsed = false }: SidebarProps) {
                   </div>
                 )}
               </li>
+
+              {/* Applied Jobs Item with badge */}
+              {!user?.isRecruiter && (
+                <li>
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          onClick={() => handleNavigation("/applied-jobs")}
+                          className={`flex items-center justify-center p-2 rounded-md font-medium cursor-pointer ${
+                            location === "/applied-jobs"
+                              ? "text-purple-600 bg-purple-50"
+                              : "text-gray-700 hover:bg-purple-50"
+                          }`}
+                        >
+                          <div className="relative">
+                            <CheckCircle className="w-5 h-5" />
+                            {appliedJobsCount > 0 && (
+                              <span className="absolute -top-1 -right-1 flex items-center justify-center bg-green-600 text-white text-xs font-bold rounded-full h-4 w-4">
+                                {appliedJobsCount}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">Applied Jobs</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <div
+                      onClick={() => handleNavigation("/applied-jobs")}
+                      className={`flex items-center px-4 py-2 rounded-md font-medium cursor-pointer ${
+                        location === "/applied-jobs"
+                          ? "text-purple-600 bg-purple-50"
+                          : "text-gray-700 hover:bg-purple-50"
+                      }`}
+                    >
+                      <CheckCircle className="w-5 h-5 mr-3" />
+                      <span>Applied Jobs</span>
+                      {appliedJobsCount > 0 && (
+                        <span className="ml-auto bg-green-100 text-green-800 text-xs font-medium rounded-full px-2 py-0.5">
+                          {appliedJobsCount}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </li>
+              )}
 
               {/* Rest of User Menu Items */}
               {userMenuItems.map((item) => (

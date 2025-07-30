@@ -18,7 +18,8 @@ import {
   Menu,
   X,
   UserCheck,
-  PlusCircle
+  PlusCircle,
+  CheckCircle
 } from "lucide-react";
 
 interface LayoutProps {
@@ -187,6 +188,17 @@ export default function Layout({ children }: LayoutProps) {
                     >
                       <Bookmark className="mr-2 h-5 w-5" />
                       Saved Jobs
+                    </Button>
+                  </Link>
+                  <Link href="/applied-jobs">
+                    <Button
+                      variant="ghost"
+                      className={`w-full justify-start ${
+                        location === "/applied-jobs" ? "bg-purple-50 text-purple-800" : ""
+                      }`}
+                    >
+                      <CheckCircle className="mr-2 h-5 w-5" />
+                      Applied Jobs
                     </Button>
                   </Link>
                 </>
@@ -401,6 +413,17 @@ export default function Layout({ children }: LayoutProps) {
                     >
                       <Bookmark className="mr-2 h-5 w-5" />
                       Saved Jobs
+                    </Button>
+                  </Link>
+                  <Link href="/applied-jobs">
+                    <Button
+                      variant="ghost"
+                      className={`w-full justify-start ${
+                        location === "/applied-jobs" ? "bg-purple-50 text-purple-800" : ""
+                      }`}
+                    >
+                      <CheckCircle className="mr-2 h-5 w-5" />
+                      Applied Jobs
                     </Button>
                   </Link>
                 </>

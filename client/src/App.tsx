@@ -15,6 +15,7 @@ import CommunityPage from "@/pages/community-page";
 import MessagesPage from "@/pages/messages-page-new";
 import SettingsPage from "@/pages/settings-page";
 import SavedJobsPage from "@/pages/saved-jobs-page";
+import AppliedJobsPage from "@/pages/applied-jobs-page";
 import JobApplicationPage from "@/pages/job-application-page";
 import TrendingTopicsPage from "@/pages/trending-topics-page";
 import AdminLoginPage from "@/pages/admin-login";
@@ -49,6 +50,7 @@ function Router() {
       <ProtectedRoute path="/communities" component={CommunityPage} />
       <ProtectedRoute path="/messages" component={MessagesPage} />
       <ProtectedRoute path="/saved-jobs" component={SavedJobsPage} />
+      <ProtectedRoute path="/applied-jobs" component={AppliedJobsPage} />
       <ProtectedRoute path="/apply/:id" component={JobApplicationPage} />
       <ProtectedRoute path="/trending-topics" component={TrendingTopicsPage} />
       <ProtectedRoute path="/settings" component={SettingsPage} />

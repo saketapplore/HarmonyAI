@@ -77,9 +77,15 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     console.log(`Query function called with key:`, queryKey);
     try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include",
-      });
+      const url = queryKey[0] as string;
+if (url.includes("userId=NaN") || url.includes("userId=undefined")) {
+  throw new Error(`Invalid userId in queryKey: ${url}`);
+}
+
+const res = await fetch(url, {
+  credentials: "include",
+});
+
 
       console.log(`Query response status: ${res.status} for ${queryKey[0]}`);
       
