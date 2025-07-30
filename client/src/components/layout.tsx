@@ -286,15 +286,15 @@ export default function Layout({ children }: LayoutProps) {
         {/* Sidebar */}
         <div className="hidden md:flex flex-col w-64 bg-purple-50 border-r border-purple-100 shadow-sm">
           {/* Logo */}
-          <div className="p-6">
+          <div className="px-6 py-2 mr-2">
             <Link href={isRecruiter ? "/recruiter-dashboard" : "/"}>
               <HarmonyLogo size="lg" />
             </Link>
           </div>
           
           {/* User Profile */}
-          <div className="px-6 py-4 border-b">
-            <div className="flex items-center">
+          <div className="px-4 py-1 border-b">
+            <div className="flex items-center ml-6">
               <Avatar className="h-10 w-10">
                 <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.name || "User"} />
                 <AvatarFallback className="bg-[#EFE9FF] text-[#8B4DFF]">
