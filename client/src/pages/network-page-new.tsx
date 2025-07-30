@@ -84,7 +84,9 @@ export default function NetworkPage() {
   // Fetch sent connection requests
   const { data: sentPendingConnections, isLoading: loadingSentPending } = useQuery<Connection[]>({
     queryKey: ["/api/connections/sent-pending"],
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 0, // Always consider data stale to ensure fresh updates
+    refetchOnWindowFocus: true // Refetch when window regains focus
   });
 
   // Debug: Log sent pending connections whenever they change
@@ -165,8 +167,8 @@ export default function NetworkPage() {
     onSuccess: (data, receiverId) => {
       console.log(`Frontend: Successfully sent connection request to user ${receiverId}`);
       
-      // Force a refetch to get the real data from server
-      queryClient.refetchQueries({ queryKey: ["/api/connections/sent-pending"] });
+      // Invalidate queries to ensure fresh data from server
+      queryClient.invalidateQueries({ queryKey: ["/api/connections/sent-pending"] });
       
       toast({
         title: "Connection request sent",
@@ -256,32 +258,11 @@ export default function NetworkPage() {
       console.log(`Frontend: Successfully deleted connection ${connectionId}`);
       console.log(`Frontend: Updating cache...`);
       
-      // Force immediate cache update for both sent-pending and pending connections
-      queryClient.setQueryData(["/api/connections/sent-pending"], (oldData: any) => {
-        console.log(`Frontend: Updating sent-pending cache, old data:`, oldData);
-        if (oldData && Array.isArray(oldData)) {
-          const filteredData = oldData.filter((conn: any) => conn.connection.id !== connectionId);
-          console.log(`Frontend: Filtered sent-pending data:`, filteredData);
-          return filteredData;
-        }
-        return oldData;
-      });
+      // Invalidate queries to ensure fresh data from server
+      queryClient.invalidateQueries({ queryKey: ["/api/connections/sent-pending"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/connections/pending"] });
       
-      queryClient.setQueryData(["/api/connections/pending"], (oldData: any) => {
-        console.log(`Frontend: Updating pending cache, old data:`, oldData);
-        if (oldData && Array.isArray(oldData)) {
-          const filteredData = oldData.filter((conn: any) => conn.connection.id !== connectionId);
-          console.log(`Frontend: Filtered pending data:`, filteredData);
-          return filteredData;
-        }
-        return oldData;
-      });
-      
-      // Force a refetch to ensure data consistency
-      queryClient.refetchQueries({ queryKey: ["/api/connections/sent-pending"] });
-      queryClient.refetchQueries({ queryKey: ["/api/connections/pending"] });
-      
-      console.log(`Frontend: Cache updated and queries refetched`);
+      console.log(`Frontend: Queries invalidated`);
       toast({
         title: "Connection request ignored",
         description: "The connection request has been removed."
