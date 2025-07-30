@@ -375,7 +375,7 @@ export default function NetworkPage() {
   };
 
   // Card styling
-  const cardStyle = "border-0 shadow-sm hover:shadow";
+  const cardStyle = "bg-[#f5f0fa] border-0 shadow-sm hover:shadow";
 
   return (
     <Layout>

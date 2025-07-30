@@ -23,7 +23,7 @@ export default function RecruiterNetworkPage() {
   const [, setLocation] = useLocation();
   
   // Custom card styling
-  const cardStyle = "rounded-lg shadow-sm hover:shadow-md transition-shadow";
+  const cardStyle = "bg-[#f5f0fa] rounded-lg shadow-sm hover:shadow-md transition-shadow";
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("connections");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);

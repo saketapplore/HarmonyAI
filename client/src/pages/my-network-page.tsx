@@ -317,7 +317,7 @@ export default function MyNetworkPage() {
             {loadingConnections ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                  <Card key={i} className="bg-[#f5f0fa] rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
                     <CardContent className="p-6">
                       <div className="text-center">
                         <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4" />
@@ -335,7 +335,7 @@ export default function MyNetworkPage() {
             ) : connections?.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {getSortedAndFilteredConnections().map((conn) => (
-                  <Card key={conn.connection.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 group">
+                  <Card key={conn.connection.id} className="bg-[#f5f0fa] rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-200 group">
                     <CardContent className="p-6">
                       <div className="text-center">
                         <div className="relative mb-4">
@@ -427,7 +427,7 @@ export default function MyNetworkPage() {
             {loadingPending ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i} className="bg-white shadow-sm border border-gray-100">
+                  <Card key={i} className="bg-[#f5f0fa] shadow-sm border border-gray-100">
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-12 rounded-full" />
@@ -447,7 +447,7 @@ export default function MyNetworkPage() {
             ) : pendingConnections?.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pendingConnections.map((conn) => (
-                  <Card key={conn.connection.id} className="bg-white shadow-sm border border-gray-100">
+                  <Card key={conn.connection.id} className="bg-[#f5f0fa] shadow-sm border border-gray-100">
                     <CardContent className="p-4">
                       <div className="flex items-center mb-3">
                         <Avatar className="cursor-pointer" onClick={() => setLocation(`/profile/${conn.user.id}`)}>
@@ -532,7 +532,7 @@ export default function MyNetworkPage() {
             {loadingUsers ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className="bg-white shadow-sm border border-gray-100">
+                  <Card key={i} className="bg-[#f5f0fa] shadow-sm border border-gray-100">
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-12 rounded-full" />
@@ -549,7 +549,7 @@ export default function MyNetworkPage() {
             ) : filteredUsers.length ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredUsers.map((u) => (
-                  <Card key={u.id} className="bg-white shadow-sm border border-gray-100">
+                  <Card key={u.id} className="bg-[#f5f0fa] shadow-sm border border-gray-100">
                     <CardContent className="p-4">
                       <div className="flex items-center mb-3">
                         <Avatar className="cursor-pointer" onClick={() => setLocation(`/profile/${u.id}`)}>
