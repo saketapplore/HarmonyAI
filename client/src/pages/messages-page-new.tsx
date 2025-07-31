@@ -42,6 +42,17 @@ export default function MessagesPageNew() {
     refetchInterval: selectedContact ? 5000 : false, // Poll for new messages every 5 seconds when a contact is selected
   });
 
+  // Fetch recent conversations from backend
+  const { data: conversationsData, isLoading: loadingConversations } = useQuery<{
+    otherUser: User;
+    lastMessage: Message;
+    unreadCount: number;
+  }[]>({
+    queryKey: ["/api/conversations"],
+    enabled: !!user,
+    refetchInterval: 10000, // Refetch every 10 seconds
+  });
+
   // State to track recent conversations
   const [recentConversations, setRecentConversations] = useState<{
     userId: number;
@@ -49,6 +60,19 @@ export default function MessagesPageNew() {
     lastMessage: string;
     unreadCount: number;
   }[]>([]);
+
+  // Initialize recent conversations from backend data
+  useEffect(() => {
+    if (conversationsData) {
+      const formattedConversations = conversationsData.map(conv => ({
+        userId: conv.otherUser.id,
+        lastMessageTime: new Date(conv.lastMessage.createdAt),
+        lastMessage: conv.lastMessage.content,
+        unreadCount: conv.unreadCount
+      }));
+      setRecentConversations(formattedConversations);
+    }
+  }, [conversationsData]);
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -60,7 +84,10 @@ export default function MessagesPageNew() {
       // Invalidate messages query to refresh the conversation
       queryClient.invalidateQueries({ queryKey: [`/api/messages/${selectedContact?.id}`] });
       
-      // Update recent conversations with the new message
+      // Invalidate conversations query to refresh the chat list
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+      
+      // Update recent conversations with the new message for immediate UI update
       const now = new Date();
       setRecentConversations(prev => {
         const existing = prev.find(conv => conv.userId === variables.receiverId);
@@ -223,7 +250,7 @@ export default function MessagesPageNew() {
 
           {/* Contacts list */}
           <div className="flex-1 overflow-y-auto">
-            {loadingUsers ? (
+            {loadingUsers || loadingConversations ? (
               <div className="p-4 space-y-3">
                 {[1, 2, 3, 4, 5].map(i => (
                   <div key={i} className="flex items-center space-x-3">
@@ -302,10 +329,34 @@ export default function MessagesPageNew() {
         {/* Right side - Chat area */}
         <div className="flex-1 flex flex-col bg-white">
           {!selectedContact ? (
-            // Welcome message when no contact selected
-            <div 
-              className="flex-1 flex items-center justify-center relative bg-gray-50"
-            >
+                         // Welcome message when no contact selected
+             <div 
+               className="flex-1 flex items-center justify-center relative"
+               style={{
+                 background: `linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%, #f8fafc 100%)`,
+                 backgroundImage: `
+                   radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.1) 0%, transparent 45%),
+                   radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.1) 0%, transparent 45%),
+                   radial-gradient(circle at 45% 45%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
+                   radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+                   radial-gradient(circle at 25% 25%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
+                   radial-gradient(circle at 90% 60%, rgba(99, 102, 241, 0.07) 0%, transparent 35%),
+                   radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.06) 0%, transparent 35%),
+                   radial-gradient(circle at 60% 10%, rgba(239, 68, 68, 0.05) 0%, transparent 30%),
+                   radial-gradient(circle at 40% 90%, rgba(168, 85, 247, 0.06) 0%, transparent 30%)
+                 `,
+                 position: 'relative'
+               }}
+             >
+               {/* Floating bubble decorations for welcome screen */}
+               <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                 <div className="absolute top-20 left-20 w-24 h-24 bg-gradient-to-br from-purple-300/40 to-pink-300/40 rounded-full blur-md animate-pulse"></div>
+                 <div className="absolute top-40 right-32 w-20 h-20 bg-gradient-to-br from-blue-300/40 to-cyan-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1.2s'}}></div>
+                 <div className="absolute bottom-32 left-32 w-28 h-28 bg-gradient-to-br from-green-300/40 to-emerald-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '2.5s'}}></div>
+                 <div className="absolute bottom-60 right-20 w-16 h-16 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '0.8s'}}></div>
+                 <div className="absolute top-1/2 left-1/3 w-12 h-12 bg-gradient-to-br from-indigo-300/40 to-purple-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1.8s'}}></div>
+                 <div className="absolute top-1/4 right-1/4 w-10 h-10 bg-gradient-to-br from-teal-300/40 to-blue-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1s'}}></div>
+               </div>
               <div className="text-center px-6">
                 <div className="bg-purple-100 p-6 rounded-full mb-6 mx-auto w-20 h-20 flex items-center justify-center">
                   <Send className="h-10 w-10 text-purple-600" />
@@ -317,25 +368,57 @@ export default function MessagesPageNew() {
                 
                 {/* Real-time features showcase */}
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <div 
+                    className="p-4 rounded-xl transition-all duration-300 hover:scale-105"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
                     <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mb-2 mx-auto">
                       <Circle className="h-4 w-4 text-green-600" />
                     </div>
                     <p className="text-xs text-gray-600 text-center">Real-time messaging</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <div 
+                    className="p-4 rounded-xl transition-all duration-300 hover:scale-105"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
                     <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full mb-2 mx-auto">
                       <Search className="h-4 w-4 text-purple-600" />
                     </div>
                     <p className="text-xs text-gray-600 text-center">Instant search</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <div 
+                    className="p-4 rounded-xl transition-all duration-300 hover:scale-105"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
                     <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full mb-2 mx-auto">
                       <Phone className="h-4 w-4 text-blue-600" />
                     </div>
                     <p className="text-xs text-gray-600 text-center">Professional networking</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                  <div 
+                    className="p-4 rounded-xl transition-all duration-300 hover:scale-105"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.9)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                    }}
+                  >
                     <div className="flex items-center justify-center w-8 h-8 bg-orange-100 rounded-full mb-2 mx-auto">
                       <Paperclip className="h-4 w-4 text-orange-600" />
                     </div>
@@ -377,8 +460,32 @@ export default function MessagesPageNew() {
 
               {/* Messages area with enhanced background */}
               <div 
-                className="flex-1 overflow-y-auto p-4 space-y-3 relative bg-gray-50"
+                className="flex-1 overflow-y-auto p-4 space-y-3 relative"
+                style={{
+                  background: `linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%, #f8fafc 100%)`,
+                  backgroundImage: `
+                    radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 45% 45%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.06) 0%, transparent 35%),
+                    radial-gradient(circle at 25% 25%, rgba(245, 158, 11, 0.04) 0%, transparent 35%),
+                    radial-gradient(circle at 90% 60%, rgba(99, 102, 241, 0.05) 0%, transparent 30%),
+                    radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.04) 0%, transparent 30%),
+                    radial-gradient(circle at 60% 10%, rgba(239, 68, 68, 0.03) 0%, transparent 25%),
+                    radial-gradient(circle at 40% 90%, rgba(168, 85, 247, 0.04) 0%, transparent 25%)
+                  `,
+                  position: 'relative'
+                }}
               >
+                {/* Floating bubble decorations */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                  <div className="absolute top-10 left-10 w-16 h-16 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-sm animate-pulse"></div>
+                  <div className="absolute top-32 right-20 w-12 h-12 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '1s'}}></div>
+                  <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-green-200/30 to-emerald-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '2s'}}></div>
+                  <div className="absolute bottom-40 right-10 w-14 h-14 bg-gradient-to-br from-yellow-200/30 to-orange-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '0.5s'}}></div>
+                  <div className="absolute top-1/2 left-1/4 w-10 h-10 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '1.5s'}}></div>
+                  <div className="absolute top-1/3 right-1/3 w-8 h-8 bg-gradient-to-br from-teal-200/30 to-blue-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '0.8s'}}></div>
+                </div>
                 {loadingMessages ? (
                   <div className="space-y-3">
                     <div className="flex justify-start">
@@ -419,22 +526,40 @@ export default function MessagesPageNew() {
                                 )}
                                 
                                 <div className={cn("flex flex-col", isFromUser ? "items-end" : "items-start")}>
-                                  <div
-                                    className={cn(
-                                      "max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-md",
-                                      isFromUser
-                                        ? "text-white rounded-br-md"
-                                        : "bg-white text-gray-800 rounded-bl-md border border-gray-200"
-                                    )}
-                                    style={isFromUser ? {
-                                      background: `linear-gradient(135deg, #8a3ffc 0%, #9333ea 100%)`,
-                                      boxShadow: '0 4px 12px rgba(138, 63, 252, 0.25)'
-                                    } : {}}
-                                  >
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                                      {message.content}
-                                    </p>
-                                  </div>
+                                                                                                        <div
+                                     className={cn(
+                                       "max-w-xs lg:max-w-md px-4 py-3 rounded-2xl relative",
+                                       isFromUser
+                                         ? "text-white rounded-br-md"
+                                         : "text-gray-800 rounded-bl-md"
+                                     )}
+                                     style={isFromUser ? {
+                                       background: `linear-gradient(135deg, #8a3ffc 0%, #9333ea 100%)`,
+                                       boxShadow: '0 12px 32px rgba(138, 63, 252, 0.35), 0 6px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+                                       border: '1px solid rgba(138, 63, 252, 0.3)',
+                                       position: 'relative'
+                                     } : {
+                                       background: 'rgba(255, 255, 255, 0.95)',
+                                       backdropFilter: 'blur(12px)',
+                                       boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8)',
+                                       border: '1px solid rgba(255, 255, 255, 0.9)',
+                                       position: 'relative'
+                                     }}
+                                   >
+                                     {/* Subtle inner glow for sent messages */}
+                                     {isFromUser && (
+                                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent opacity-30"></div>
+                                     )}
+                                     {/* Subtle inner glow for received messages */}
+                                     {!isFromUser && (
+                                       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/40 to-transparent opacity-20"></div>
+                                     )}
+                                     <div className="relative z-10">
+                                       <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                         {message.content}
+                                       </p>
+                                     </div>
+                                   </div>
                                   <span className="text-xs text-gray-500 mt-1 px-2">
                                     {formatTime(message.createdAt)}
                                   </span>

@@ -91,6 +91,7 @@ export interface IStorage {
   createMessage(message: InsertMessage): Promise<Message>;
   getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
   getUserMessages(userId: number): Promise<{message: Message, sender: User}[]>;
+  getUserConversations(userId: number): Promise<{otherUser: User, lastMessage: Message, unreadCount: number}[]>;
   
   // Job application operations
   createJobApplication(application: InsertJobApplication): Promise<JobApplication>;
@@ -831,6 +832,55 @@ export class MemStorage implements IStorage {
     }
     
     return result;
+  }
+
+  async getUserConversations(userId: number): Promise<{otherUser: User, lastMessage: Message, unreadCount: number}[]> {
+    // Get all messages involving this user
+    const userMessages = Array.from(this.messages.values()).filter(
+      message => message.senderId === userId || message.receiverId === userId
+    );
+
+    // Group messages by conversation (other user)
+    const conversations = new Map<number, Message[]>();
+    
+    userMessages.forEach(message => {
+      const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
+      if (!conversations.has(otherUserId)) {
+        conversations.set(otherUserId, []);
+      }
+      conversations.get(otherUserId)!.push(message);
+    });
+
+    // For each conversation, find the last message and count unread messages
+    const result: {otherUser: User, lastMessage: Message, unreadCount: number}[] = [];
+    
+    for (const [otherUserId, messages] of conversations) {
+      // Sort messages by creation time to find the last message
+      const sortedMessages = messages.sort((a, b) => 
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      
+      const lastMessage = sortedMessages[sortedMessages.length - 1];
+      
+      // Count unread messages (messages sent to this user that haven't been read)
+      const unreadCount = messages.filter(message => 
+        message.receiverId === userId && !message.readAt
+      ).length;
+      
+      const otherUser = this.users.get(otherUserId);
+      if (otherUser) {
+        result.push({
+          otherUser,
+          lastMessage,
+          unreadCount
+        });
+      }
+    }
+
+    // Sort by last message time (most recent first)
+    return result.sort((a, b) => 
+      new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime()
+    );
   }
 
   // Job application operations
@@ -1660,6 +1710,65 @@ export class DatabaseStorage implements IStorage {
     }
     
     return result;
+  }
+
+  async getUserConversations(userId: number): Promise<{otherUser: User, lastMessage: Message, unreadCount: number}[]> {
+    // Get all messages involving this user
+    const userMessages = await db
+      .select()
+      .from(messages)
+      .where(
+        or(
+          eq(messages.senderId, userId),
+          eq(messages.receiverId, userId)
+        )
+      );
+
+    // Group messages by conversation (other user)
+    const conversations = new Map<number, Message[]>();
+    
+    userMessages.forEach((message: Message) => {
+      const otherUserId = message.senderId === userId ? message.receiverId : message.senderId;
+      if (!conversations.has(otherUserId)) {
+        conversations.set(otherUserId, []);
+      }
+      conversations.get(otherUserId)!.push(message);
+    });
+
+    // For each conversation, find the last message and count unread messages
+    const result: {otherUser: User, lastMessage: Message, unreadCount: number}[] = [];
+    
+    for (const [otherUserId, messages] of conversations.entries()) {
+      // Sort messages by creation time to find the last message
+      const sortedMessages = messages.sort((a: Message, b: Message) => 
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      
+      const lastMessage = sortedMessages[sortedMessages.length - 1];
+      
+      // Count unread messages (messages sent to this user that haven't been read)
+      const unreadCount = messages.filter((message: Message) => 
+        message.receiverId === userId && !message.readAt
+      ).length;
+      
+      const [otherUser] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, otherUserId));
+      
+      if (otherUser) {
+        result.push({
+          otherUser,
+          lastMessage,
+          unreadCount
+        });
+      }
+    }
+
+    // Sort by last message time (most recent first)
+    return result.sort((a, b) => 
+      new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime()
+    );
   }
 
   // Job application operations

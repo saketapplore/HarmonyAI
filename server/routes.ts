@@ -1569,6 +1569,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Conversations endpoint - Get all conversations for the current user
+  app.get("/api/conversations", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const conversations = await storage.getUserConversations(req.user.id);
+      res.json(conversations);
+    } catch (error) {
+      console.error("Error fetching conversations:", error);
+      next(error);
+    }
+  });
+
   // Configure multer for video uploads
   const upload = multer({
     dest: 'uploads/',
