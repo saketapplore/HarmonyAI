@@ -42,15 +42,46 @@ export default function MessagesPageNew() {
     refetchInterval: selectedContact ? 5000 : false, // Poll for new messages every 5 seconds when a contact is selected
   });
 
+  // State to track recent conversations
+  const [recentConversations, setRecentConversations] = useState<{
+    userId: number;
+    lastMessageTime: Date;
+    lastMessage: string;
+    unreadCount: number;
+  }[]>([]);
+
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (data: InsertMessage) => {
       const res = await apiRequest("POST", "/api/messages", data);
       return await res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       // Invalidate messages query to refresh the conversation
       queryClient.invalidateQueries({ queryKey: [`/api/messages/${selectedContact?.id}`] });
+      
+      // Update recent conversations with the new message
+      const now = new Date();
+      setRecentConversations(prev => {
+        const existing = prev.find(conv => conv.userId === variables.receiverId);
+        if (existing) {
+          // Update existing conversation
+          return prev.map(conv => 
+            conv.userId === variables.receiverId 
+              ? { ...conv, lastMessageTime: now, lastMessage: variables.content, unreadCount: 0 }
+              : conv
+          );
+        } else {
+          // Add new conversation
+          return [{ 
+            userId: variables.receiverId, 
+            lastMessageTime: now, 
+            lastMessage: variables.content, 
+            unreadCount: 0 
+          }, ...prev];
+        }
+      });
+      
       setMessageText("");
     },
     onError: (error) => {
@@ -95,8 +126,48 @@ export default function MessagesPageNew() {
     });
   };
 
+  // Filter and sort users based on recent conversations
+  const getSortedUsers = () => {
+    if (!allUsers) return [];
+    
+    // Create a map of users with their conversation data
+    const userMap = new Map();
+    
+    // Add users with conversations first
+    recentConversations.forEach(conv => {
+      const user = allUsers.find(u => u.id === conv.userId);
+      if (user) {
+        userMap.set(conv.userId, {
+          ...user,
+          lastMessageTime: conv.lastMessageTime,
+          lastMessage: conv.lastMessage,
+          unreadCount: conv.unreadCount
+        });
+      }
+    });
+    
+    // Add users without conversations
+    allUsers.forEach(user => {
+      if (!userMap.has(user.id)) {
+        userMap.set(user.id, {
+          ...user,
+          lastMessageTime: new Date(0),
+          lastMessage: "",
+          unreadCount: 0
+        });
+      }
+    });
+    
+    // Convert to array and sort by last message time (most recent first)
+    return Array.from(userMap.values()).sort((a, b) => {
+      const timeA = new Date(a.lastMessageTime).getTime();
+      const timeB = new Date(b.lastMessageTime).getTime();
+      return timeB - timeA; // Most recent first
+    });
+  };
+
   // Filter users based on search term
-  const filteredUsers = allUsers?.filter(user => 
+  const filteredUsers = getSortedUsers().filter(user => 
     user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.title?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -184,7 +255,7 @@ export default function MessagesPageNew() {
                             {(user.name || user.username)?.substring(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        {/* Online status indicator - you can implement this based on user activity */}
+                        {/* Online status indicator */}
                         <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full shadow-sm"></div>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -193,13 +264,21 @@ export default function MessagesPageNew() {
                             {user.name || user.username}
                           </h3>
                           <span className="text-xs text-gray-500">
-                            Active now
+                            {user.lastMessageTime && user.lastMessageTime !== new Date(0) 
+                              ? formatLastMessageTime(user.lastMessageTime)
+                              : "Active now"
+                            }
                           </span>
                         </div>
                         <div className="flex items-center justify-between">
                           <p className="text-sm text-gray-500 truncate flex-1">
-                            {user.title || "Job Seeker"}
+                            {user.lastMessage || user.title || "Job Seeker"}
                           </p>
+                          {user.unreadCount > 0 && (
+                            <div className="ml-2 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                              {user.unreadCount}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
