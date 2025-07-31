@@ -453,7 +453,7 @@ export default function NetworkPage() {
   };
 
   // Card styling
-  const cardStyle = "bg-[#f5f0fa] border-0 shadow-sm hover:shadow";
+  const cardStyle = "bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200";
 
   return (
     <Layout>
@@ -616,7 +616,7 @@ export default function NetworkPage() {
             {loadingConnections ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={i} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-12 rounded-full" />
@@ -633,7 +633,7 @@ export default function NetworkPage() {
               // Display real connections data if available
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {getSortedAndFilteredConnections().map((connection) => (
-                  <Card key={connection.connection.id} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={connection.connection.id} className={cardStyle}>
                     <CardContent className="p-5">
                       <div 
                         className="flex items-center justify-between mb-4 cursor-pointer"
@@ -746,7 +746,7 @@ export default function NetworkPage() {
             {loadingPending ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={i} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-12 rounded-full" />
@@ -763,7 +763,7 @@ export default function NetworkPage() {
               // Display real pending requests if available
               <div className="space-y-4">
                 {pendingConnections.map((connection) => (
-                  <Card key={connection.connection.id} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={connection.connection.id} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center mb-4">
                         <div 
@@ -890,7 +890,7 @@ export default function NetworkPage() {
             {loadingSentPending ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={i} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center space-x-4">
                         <Skeleton className="h-12 w-12 rounded-full" />
@@ -907,7 +907,7 @@ export default function NetworkPage() {
               // Display real sent requests if available
               <div className="space-y-4">
                 {sentPendingConnections.map((connection) => (
-                  <Card key={connection.connection.id} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={connection.connection.id} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center mb-4">
                         <div 
@@ -1000,7 +1000,7 @@ export default function NetworkPage() {
             {loadingUsers ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array(6).fill(0).map((_, i) => (
-                  <Card key={i} className={cn(cardStyle, "border border-gray-100")}>
+                  <Card key={i} className={cardStyle}>
                     <CardContent className="p-5">
                       <div className="flex items-center mb-4">
                         <Skeleton className="h-12 w-12 rounded-full mr-3" />
@@ -1032,7 +1032,7 @@ export default function NetworkPage() {
                     return true;
                   })
                   .map((discoveryUser) => (
-                    <Card key={discoveryUser.id} className={cn(cardStyle, "border border-gray-100")}>
+                    <Card key={discoveryUser.id} className={cardStyle}>
                       <CardContent className="p-5">
                         <div 
                           className="flex items-center mb-4 cursor-pointer"
@@ -1042,7 +1042,7 @@ export default function NetworkPage() {
                             <AvatarImage 
                               src={discoveryUser.profileImageUrl || undefined} 
                               alt={discoveryUser.name || ''} 
-                            />
+                              />
                             <AvatarFallback>{discoveryUser.name?.charAt(0) || "U"}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
