@@ -298,14 +298,12 @@ export default function MessagesPageNew() {
                       onClick={() => setSelectedContact(user)}
                     >
                       <div className="relative">
-                        <Avatar className="h-12 w-12 mr-3">
-                          <AvatarImage src={user.profileImageUrl || ""} />
-                          <AvatarFallback className="bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 font-medium shadow-sm">
-                            {(user.name || user.username)?.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        {/* Online status indicator */}
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full shadow-sm"></div>
+                                                 <Avatar className="h-12 w-12 mr-3">
+                           <AvatarImage src={user.profileImageUrl || ""} />
+                           <AvatarFallback className="bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 font-medium shadow-sm">
+                             {(user.name || user.username)?.substring(0, 2).toUpperCase()}
+                           </AvatarFallback>
+                         </Avatar>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center mb-1">
@@ -463,15 +461,11 @@ export default function MessagesPageNew() {
                     <h3 className="font-semibold text-gray-900 text-lg leading-tight mb-1">
                       {selectedContact?.name || selectedContact?.username || "Contact"}
                     </h3>
-                    <div className="flex items-center">
-                      <p className="text-sm text-gray-600 leading-tight mr-2">
-                        {selectedContact?.title || "Job Seeker"}
-                      </p>
-                      <div className="flex items-center text-green-600 text-xs">
-                        <Circle className="h-3 w-3 mr-1" />
-                        online
-                      </div>
-                    </div>
+                                         <div className="flex items-center">
+                       <p className="text-sm text-gray-600 leading-tight">
+                         {selectedContact?.title || "Job Seeker"}
+                       </p>
+                     </div>
                   </div>
                 </div>
               </div>
