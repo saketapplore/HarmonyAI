@@ -352,33 +352,29 @@ export default function MessagesPageNew() {
         <div className="flex-1 flex flex-col bg-white">
           {!selectedContact ? (
                          // Welcome message when no contact selected
-             <div 
-               className="flex-1 flex items-center justify-center relative"
-               style={{
-                 background: `linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%, #f8fafc 100%)`,
-                 backgroundImage: `
-                   radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.1) 0%, transparent 45%),
-                   radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.1) 0%, transparent 45%),
-                   radial-gradient(circle at 45% 45%, rgba(16, 185, 129, 0.07) 0%, transparent 45%),
-                   radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
-                   radial-gradient(circle at 25% 25%, rgba(245, 158, 11, 0.06) 0%, transparent 40%),
-                   radial-gradient(circle at 90% 60%, rgba(99, 102, 241, 0.07) 0%, transparent 35%),
-                   radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.06) 0%, transparent 35%),
-                   radial-gradient(circle at 60% 10%, rgba(239, 68, 68, 0.05) 0%, transparent 30%),
-                   radial-gradient(circle at 40% 90%, rgba(168, 85, 247, 0.06) 0%, transparent 30%)
-                 `,
-                 position: 'relative'
-               }}
-             >
-               {/* Floating bubble decorations for welcome screen */}
-               <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                 <div className="absolute top-20 left-20 w-24 h-24 bg-gradient-to-br from-purple-300/40 to-pink-300/40 rounded-full blur-md animate-pulse"></div>
-                 <div className="absolute top-40 right-32 w-20 h-20 bg-gradient-to-br from-blue-300/40 to-cyan-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1.2s'}}></div>
-                 <div className="absolute bottom-32 left-32 w-28 h-28 bg-gradient-to-br from-green-300/40 to-emerald-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '2.5s'}}></div>
-                 <div className="absolute bottom-60 right-20 w-16 h-16 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '0.8s'}}></div>
-                 <div className="absolute top-1/2 left-1/3 w-12 h-12 bg-gradient-to-br from-indigo-300/40 to-purple-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1.8s'}}></div>
-                 <div className="absolute top-1/4 right-1/4 w-10 h-10 bg-gradient-to-br from-teal-300/40 to-blue-300/40 rounded-full blur-md animate-pulse" style={{animationDelay: '1s'}}></div>
-               </div>
+                           <div 
+                className="flex-1 flex items-center justify-center relative"
+                style={{
+                  background: '#f5f0fa',
+                  backgroundImage: `
+                    repeating-linear-gradient(
+                      45deg,
+                      transparent,
+                      transparent 35px,
+                      rgba(139, 92, 246, 0.08) 35px,
+                      rgba(139, 92, 246, 0.08) 36px
+                    ),
+                    repeating-linear-gradient(
+                      -45deg,
+                      transparent,
+                      transparent 35px,
+                      rgba(139, 92, 246, 0.08) 35px,
+                      rgba(139, 92, 246, 0.08) 36px
+                    )
+                  `,
+                  position: 'relative'
+                }}
+              >
               <div className="text-center px-6">
                 <div className="bg-purple-100 p-6 rounded-full mb-6 mx-auto w-20 h-20 flex items-center justify-center">
                   <Send className="h-10 w-10 text-purple-600" />
@@ -480,34 +476,30 @@ export default function MessagesPageNew() {
                 </div>
               </div>
 
-              {/* Messages area with enhanced background */}
+              {/* Messages area with light purple background and plus pattern */}
               <div 
                 className="flex-1 overflow-y-auto p-4 space-y-3 relative"
                 style={{
-                  background: `linear-gradient(135deg, #f8fafc 0%, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%, #f8fafc 100%)`,
+                  background: '#f5f0fa',
                   backgroundImage: `
-                    radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 85% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 45% 45%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
-                    radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.06) 0%, transparent 35%),
-                    radial-gradient(circle at 25% 25%, rgba(245, 158, 11, 0.04) 0%, transparent 35%),
-                    radial-gradient(circle at 90% 60%, rgba(99, 102, 241, 0.05) 0%, transparent 30%),
-                    radial-gradient(circle at 10% 40%, rgba(34, 197, 94, 0.04) 0%, transparent 30%),
-                    radial-gradient(circle at 60% 10%, rgba(239, 68, 68, 0.03) 0%, transparent 25%),
-                    radial-gradient(circle at 40% 90%, rgba(168, 85, 247, 0.04) 0%, transparent 25%)
+                    repeating-linear-gradient(
+                      45deg,
+                      transparent,
+                      transparent 35px,
+                      rgba(139, 92, 246, 0.08) 35px,
+                      rgba(139, 92, 246, 0.08) 36px
+                    ),
+                    repeating-linear-gradient(
+                      -45deg,
+                      transparent,
+                      transparent 35px,
+                      rgba(139, 92, 246, 0.08) 35px,
+                      rgba(139, 92, 246, 0.08) 36px
+                    )
                   `,
                   position: 'relative'
                 }}
               >
-                {/* Floating bubble decorations */}
-                <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                  <div className="absolute top-10 left-10 w-16 h-16 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-sm animate-pulse"></div>
-                  <div className="absolute top-32 right-20 w-12 h-12 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '1s'}}></div>
-                  <div className="absolute bottom-20 left-20 w-20 h-20 bg-gradient-to-br from-green-200/30 to-emerald-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '2s'}}></div>
-                  <div className="absolute bottom-40 right-10 w-14 h-14 bg-gradient-to-br from-yellow-200/30 to-orange-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '0.5s'}}></div>
-                  <div className="absolute top-1/2 left-1/4 w-10 h-10 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '1.5s'}}></div>
-                  <div className="absolute top-1/3 right-1/3 w-8 h-8 bg-gradient-to-br from-teal-200/30 to-blue-200/30 rounded-full blur-sm animate-pulse" style={{animationDelay: '0.8s'}}></div>
-                </div>
                 {loadingMessages ? (
                   <div className="space-y-3">
                     <div className="flex justify-start">
