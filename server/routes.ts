@@ -1584,6 +1584,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mark messages as read endpoint
+  app.post("/api/messages/mark-as-read", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const { otherUserId } = req.body;
+      if (!otherUserId) {
+        return res.status(400).json({ message: "otherUserId is required" });
+      }
+
+      await storage.markMessagesAsRead(req.user.id, otherUserId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      next(error);
+    }
+  });
+
   // Configure multer for video uploads
   const upload = multer({
     dest: 'uploads/',

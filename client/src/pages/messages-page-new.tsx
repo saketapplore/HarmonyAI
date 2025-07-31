@@ -74,6 +74,13 @@ export default function MessagesPageNew() {
     }
   }, [conversationsData]);
 
+  // Mark messages as read when a contact is selected
+  useEffect(() => {
+    if (selectedContact && user) {
+      markMessagesAsReadMutation.mutate(selectedContact.id);
+    }
+  }, [selectedContact?.id, user?.id]);
+
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (data: InsertMessage) => {
@@ -117,6 +124,21 @@ export default function MessagesPageNew() {
         description: error instanceof Error ? error.message : "Failed to send your message",
         variant: "destructive",
       });
+    },
+  });
+
+  // Mark messages as read mutation
+  const markMessagesAsReadMutation = useMutation({
+    mutationFn: async (otherUserId: number) => {
+      const res = await apiRequest("POST", "/api/messages/mark-as-read", { otherUserId });
+      return await res.json();
+    },
+    onSuccess: () => {
+      // Invalidate conversations query to refresh unread counts
+      queryClient.invalidateQueries({ queryKey: ["/api/conversations"] });
+    },
+    onError: (error) => {
+      console.error("Failed to mark messages as read:", error);
     },
   });
 

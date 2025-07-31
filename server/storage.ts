@@ -92,6 +92,7 @@ export interface IStorage {
   getMessagesBetweenUsers(user1Id: number, user2Id: number): Promise<Message[]>;
   getUserMessages(userId: number): Promise<{message: Message, sender: User}[]>;
   getUserConversations(userId: number): Promise<{otherUser: User, lastMessage: Message, unreadCount: number}[]>;
+  markMessagesAsRead(userId: number, otherUserId: number): Promise<void>;
   
   // Job application operations
   createJobApplication(application: InsertJobApplication): Promise<JobApplication>;
@@ -864,7 +865,7 @@ export class MemStorage implements IStorage {
       
       // Count unread messages (messages sent to this user that haven't been read)
       const unreadCount = messages.filter(message => 
-        message.receiverId === userId && !message.readAt
+        message.receiverId === userId && !message.isRead
       ).length;
       
       const otherUser = this.users.get(otherUserId);
@@ -1245,6 +1246,23 @@ export class MemStorage implements IStorage {
 
   async deletePasswordResetRequest(id: number): Promise<boolean> {
     return this.passwordResetRequests.delete(id);
+  }
+
+  // Message operations
+  async markMessagesAsRead(userId: number, otherUserId: number): Promise<void> {
+    // Find all messages sent to the current user by the other user that haven't been read
+    const messagesToMark = Array.from(this.messages.values()).filter(
+      message => message.receiverId === userId && 
+                 message.senderId === otherUserId && 
+                 !message.isRead
+    );
+    
+    // Mark them as read by setting isRead to true
+    messagesToMark.forEach(message => {
+      message.isRead = true;
+    });
+    
+    console.log(`Marked ${messagesToMark.length} messages as read for user ${userId} from user ${otherUserId}`);
   }
 }
 
@@ -1746,10 +1764,10 @@ export class DatabaseStorage implements IStorage {
       
       const lastMessage = sortedMessages[sortedMessages.length - 1];
       
-      // Count unread messages (messages sent to this user that haven't been read)
-      const unreadCount = messages.filter((message: Message) => 
-        message.receiverId === userId && !message.readAt
-      ).length;
+                   // Count unread messages (messages sent to this user that haven't been read)
+             const unreadCount = messages.filter((message: Message) => 
+               message.receiverId === userId && !message.isRead
+             ).length;
       
       const [otherUser] = await db
         .select()
@@ -2586,6 +2604,23 @@ export class DatabaseStorage implements IStorage {
       console.error("Error getting company jobs:", error);
       return [];
     }
+  }
+
+  // Message operations
+  async markMessagesAsRead(userId: number, otherUserId: number): Promise<void> {
+    // Update all messages sent to the current user by the other user that haven't been read
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(
+        and(
+          eq(messages.receiverId, userId),
+          eq(messages.senderId, otherUserId),
+          eq(messages.isRead, false)
+        )
+      );
+    
+    console.log(`Marked messages as read for user ${userId} from user ${otherUserId}`);
   }
 }
 
